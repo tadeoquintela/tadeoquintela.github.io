@@ -1,7 +1,7 @@
-/* Tadeo Quintela · personal site. Navy and gold, shared by the home page and /publicaciones (the relevamiento keeps its own copy). */
+/* Tadeo Quintela · personal site. Graphite and gold, shared by the home page and /publicaciones (the relevamiento keeps its own copy). */
 :root{
-  --bg:#0f1b2d; --panel:#16253b; --panel2:#1d2f49; --line:#263a57; --line2:#36507a;
-  --fg:#f2eee4; --muted:#a3b2c7; --dim:#6f82a0;
+  --bg:#191b1f; --panel:#222529; --panel2:#2a2e33; --line:#33373d; --line2:#41464e;
+  --fg:#f2eee4; --muted:#a4aab3; --dim:#8a9099;
   --gold:#d9b35a; --gold-hi:#f0cf73; --gold-ink:#1a1405;
   --display:'Archivo', 'Arial Narrow', 'Segoe UI', sans-serif;
   --body:'Public Sans', 'Segoe UI', system-ui, sans-serif;

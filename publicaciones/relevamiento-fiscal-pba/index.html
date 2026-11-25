@@ -13,7 +13,7 @@
 <meta property="og:url" content="https://tadeoquintela.github.io/publicaciones/relevamiento-fiscal-pba/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://tadeoquintela.github.io/publicaciones/relevamiento-fiscal-pba/vista.png">
-<meta name="theme-color" content="#0f1b2d">
+<meta name="theme-color" content="#191b1f">
 </head>
 <body>
 <title>Tadeo Quintela - Relevamiento de la Provincia de Buenos Aires</title>
@@ -23,10 +23,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Public+Sans:wght@400;500;600&display=swap">
 <style>
 /* Layout: short hero with the two index figures, then an explorer (map | ficha side by side, stacked on phones), cross, ranking, method.
-   Navy ground, gold only for values and the selected municipio; the map scale runs navy → gold. */
+   Graphite ground, gold only for values and the selected municipio; the map scale runs graphite → gold. */
 :root{
-  --bg:#0f1b2d; --panel:#16253b; --panel2:#1d2f49; --line:#263a57; --line2:#36507a;
-  --fg:#f2eee4; --muted:#a3b2c7; --dim:#6f82a0;
+  --bg:#191b1f; --panel:#222529; --panel2:#2a2e33; --line:#33373d; --line2:#41464e;
+  --fg:#f2eee4; --muted:#a4aab3; --dim:#8a9099;
   --gold:#d9b35a; --gold-hi:#f0cf73; --gold-ink:#1a1405;
   --s1:#2f9e6b; --s2:#8bbf5a; --s3:#e6c84a; --s4:#e8893f; --s5:#d9493c;   /* map scale: green (good, low) → yellow → red (bad, high) */
   --neg:#ef8f74; --pos:#8fd0a8;
@@ -172,7 +172,7 @@ details.detalle[open] > summary::before{content:"– "}
 .lista-top .n{margin-left:auto;color:var(--gold-hi);font-weight:700}
 
 /* share preview */
-.velo{position:fixed;inset:0;z-index:30;background:rgba(5,10,18,.82);display:flex;align-items:center;justify-content:center;
+.velo{position:fixed;inset:0;z-index:30;background:rgba(8,9,11,.82);display:flex;align-items:center;justify-content:center;
   padding:max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px))}
 .caja{background:var(--panel);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;max-width:min(440px,100%);max-height:100%;overflow:auto}
 .caja img{display:block;width:100%;height:auto;border-radius:8px;background:var(--bg)}
@@ -331,7 +331,7 @@ footer b{color:var(--fg);font:700 13px var(--display);letter-spacing:.12em;text-
         <div>
           <div class="lienzo" id="lienzo">
             <svg id="mapa" role="img" aria-label="Mapa de los municipios de la Provincia de Buenos Aires">
-              <defs><pattern id="rayas" width="0.06" height="0.06" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="0.06" height="0.06" fill="#17263c"/><line x1="0" y1="0" x2="0" y2="0.06" stroke="#2b405f" stroke-width="0.03"/></pattern></defs>
+              <defs><pattern id="rayas" width="0.06" height="0.06" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="0.06" height="0.06" fill="#222529"/><line x1="0" y1="0" x2="0" y2="0.06" stroke="#383c43" stroke-width="0.03"/></pattern></defs>
             </svg>
             <div class="zoom seg chico" role="group" aria-label="Zona del mapa"><button id="zProv" aria-pressed="true">Provincia</button><button id="zConu" aria-pressed="false">Conurbano</button></div>
             <div class="tip" id="tip" hidden></div>
@@ -505,7 +505,7 @@ function pintar() {
     G[m.n].querySelectorAll('path').forEach(p => p.setAttribute('fill', v == null ? 'url(#rayas)' : ESC[clase(modo, v)]));
   }
   $('ley').innerHTML = I.etq.map((t, i) => `<span><i style="background:${ESC[i]}"></i>${t} <span class="cant">(${cnt[i]})</span></span>`).join('')
-    + `<span><i style="background:repeating-linear-gradient(45deg,#17263c 0 3px,#2b405f 3px 5px)"></i>${modo === 'cf' ? 'Sin ordenanza publicada' : 'Sin ordenanza o sin alícuota comparable'} <span class="cant">(${sd})</span></span>`;
+    + `<span><i style="background:repeating-linear-gradient(45deg,#222529 0 3px,#383c43 3px 5px)"></i>${modo === 'cf' ? 'Sin ordenanza publicada' : 'Sin ordenanza o sin alícuota comparable'} <span class="cant">(${sd})</span></span>`;
   $('mCf').setAttribute('aria-pressed', modo === 'cf'); $('mPf').setAttribute('aria-pressed', modo === 'pf');
   if (!sel) resumen();
 }
@@ -703,7 +703,7 @@ function envolver(ctx, txt, maxW) {
   for (const p of pal) { const t = l ? l + ' ' + p : p; if (ctx.measureText(t).width > maxW && l) { lineas.push(l); l = p; } else l = t; }
   if (l) lineas.push(l); return lineas;
 }
-const PAL = {bg: '#0f1b2d', panel: '#16253b', panel2: '#1d2f49', fg: '#f2eee4', muted: '#a3b2c7', dim: '#6f82a0', gold: '#d9b35a', hi: '#f0cf73', ink: '#1a1405', line: '#263a57', pos: '#8fd0a8', neg: '#ef8f74'};
+const PAL = {bg: '#191b1f', panel: '#222529', panel2: '#2a2e33', fg: '#f2eee4', muted: '#a4aab3', dim: '#8a9099', gold: '#d9b35a', hi: '#f0cf73', ink: '#1a1405', line: '#33373d', pos: '#8fd0a8', neg: '#ef8f74'};
 const fCv = (w, s, fam) => `${w} ${s}px ${fam === 'b' ? '"Public Sans", "Segoe UI", sans-serif' : 'Archivo, "Arial Narrow", sans-serif'}`;
 async function fuentesCv() { try { await Promise.all(['800 120px Archivo', '700 40px Archivo', '500 30px "Public Sans"', '600 26px "Public Sans"'].map(f => document.fonts.load(f))); } catch (e) {} }
 /* contents of the two index cards in the share images; m = null → provincial averages */
@@ -718,7 +718,7 @@ function tarjetasDatos(m) {
   else if (m.pf == null) pf = {valor: 'Sin alícuota', sub: 'su ordenanza no fija una alícuota sobre lo facturado', l1: '', l2: ''};
   else pf = {valor: pct(m.pf), sub: 'de lo que factura una empresa', l1: `Puesto ${m.rpf} de ${IDX.pf.n}`,
              l2: m.pfnota ? 'Derogó la Tasa de Seguridad e Higiene' : vsCorto(m.pf, pfProm, 2, true)};
-  Object.assign(pf, {etq: 'PRESIÓN FISCAL', fondo: '#f2eee4', tinta: '#0f1b2d', suave: '#4a5a72'});
+  Object.assign(pf, {etq: 'PRESIÓN FISCAL', fondo: '#f2eee4', tinta: '#191b1f', suave: '#55595f'});
   return [cf, pf];
 }
 function tarjetaCv(x, rr, x0, y0, w, h, t, tam) {
