@@ -1,0 +1,75 @@
+/* Tadeo Quintela · personal site. Navy and gold, shared by the home page and /publicaciones (the relevamiento keeps its own copy). */
+:root{
+  --bg:#0f1b2d; --panel:#16253b; --panel2:#1d2f49; --line:#263a57; --line2:#36507a;
+  --fg:#f2eee4; --muted:#a3b2c7; --dim:#6f82a0;
+  --gold:#d9b35a; --gold-hi:#f0cf73; --gold-ink:#1a1405;
+  --display:'Archivo', 'Arial Narrow', 'Segoe UI', sans-serif;
+  --body:'Public Sans', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 var(--body)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--gold-hi);outline-offset:3px}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(20px, env(safe-area-inset-left, 0px));padding-right:max(20px, env(safe-area-inset-right, 0px))}
+
+/* top bar, the same on every page */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top, 0px);z-index:10;background:var(--bg)}
+.barra{position:sticky;top:env(safe-area-inset-top, 0px);z-index:8;background:var(--bg);border-bottom:1px solid var(--line)}
+.barra .wrap{display:flex;align-items:center;gap:16px;min-height:58px}
+.firma{display:flex;align-items:center;gap:11px;text-decoration:none;min-width:0}
+.firma .marca{width:30px;height:30px;border:1.5px solid var(--gold);border-radius:50%;display:grid;place-items:center;font:800 12px var(--display);color:var(--gold);flex:none}
+.firma b{font:700 15px var(--display);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.barra nav{margin-left:auto;display:flex;gap:4px}
+.barra nav a{text-decoration:none;color:var(--muted);font-size:14.5px;padding:7px 12px;border-radius:8px}
+.barra nav a:hover{color:var(--fg);background:var(--panel)}
+.barra nav a[aria-current="page"]{color:var(--gold-hi)}
+
+/* profile */
+.perfil{padding-block:64px 52px;border-bottom:1px solid var(--line);
+  background:radial-gradient(900px 340px at 15% 0%, rgba(217,179,90,.10), transparent 70%)}
+.perfil .wrap{display:grid;grid-template-columns:auto minmax(0,1fr);gap:44px;align-items:center}
+.foto{width:184px;height:184px;border-radius:50%;padding:5px;background:linear-gradient(140deg,var(--gold-hi),var(--gold) 45%,#8f6f28)}
+.foto img{display:block;width:100%;height:100%;border-radius:50%;object-fit:cover;border:4px solid var(--bg)}
+h1{font:800 clamp(40px,6vw,68px)/1 var(--display);font-stretch:112%;letter-spacing:-.02em;margin:0}
+.bio{color:var(--muted);font-size:18px;max-width:58ch;margin:14px 0 0}
+.redes{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.redes a{display:inline-flex;align-items:center;gap:9px;text-decoration:none;padding:10px 16px;border-radius:999px;border:1px solid var(--line2);background:var(--panel);font-weight:500;font-size:15px;transition:background .2s,border-color .2s,color .2s}
+.redes a:hover{border-color:var(--gold);color:var(--gold-hi);background:var(--panel2)}
+.redes svg{width:18px;height:18px;flex:none}
+.redes small{color:var(--dim);font-size:13px;font-weight:400}
+
+/* sections and publication cards */
+.seccion{padding-block:52px 68px}
+.seccion-cab{display:flex;align-items:flex-end;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;margin-bottom:24px}
+.seccion h2,.titulo-pag{font:800 clamp(26px,3.2vw,36px)/1.1 var(--display);font-stretch:108%;margin:0}
+.seccion-cab p{color:var(--muted);margin:6px 0 0;max-width:60ch}
+.ver-todo{color:var(--gold-hi);font-weight:600;text-decoration:none;white-space:nowrap}
+.ver-todo:hover{text-decoration:underline}
+.cab-pag{padding-block:52px 8px}
+.cab-pag p{color:var(--muted);font-size:17px;max-width:60ch;margin:12px 0 0}
+.grilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:22px}
+.pub{display:flex;flex-direction:column;background:var(--panel);border-radius:14px;overflow:hidden;text-decoration:none;border:1px solid var(--line);transition:transform .2s,border-color .2s}
+.pub:hover{transform:translateY(-3px);border-color:var(--gold)}
+.pub img{display:block;width:100%;height:auto;aspect-ratio:1200/630;object-fit:cover;background:var(--bg);border-bottom:1px solid var(--line)}
+.pub-cuerpo{padding:20px 22px 22px;display:flex;flex-direction:column;gap:10px}
+.pub-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted)}
+.chip{padding:3px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line2);color:var(--fg)}
+.pub h3{font:800 22px/1.2 var(--display);margin:0;text-wrap:balance}
+.pub p{color:var(--muted);font-size:15px;margin:0}
+.pub .ir{margin-top:6px;color:var(--gold-hi);font-weight:600;font-size:15px}
+.pub:hover .ir{text-decoration:underline}
+footer{border-top:1px solid var(--line);padding-block:26px 40px;color:var(--dim);font-size:13px}
+
+@media (max-width:720px){
+  .firma b{font-size:13.5px;letter-spacing:.1em}
+  .barra nav a{padding:7px 9px;font-size:14px}
+  .perfil{padding-block:40px 38px}
+  .perfil .wrap{grid-template-columns:minmax(0,1fr);gap:22px}
+  .foto{width:132px;height:132px}
+  .bio{font-size:16.5px}
+  .seccion{padding-block:38px 52px}
+}
+@media (max-width:380px){ .firma b{display:none} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.pub:hover{transform:none}}
