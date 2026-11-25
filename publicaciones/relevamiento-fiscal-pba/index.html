@@ -70,8 +70,12 @@ h1 em{font-style:normal;color:var(--gold-hi)}
 .cifra h2{font:600 12px var(--body);letter-spacing:.12em;text-transform:uppercase;margin:0;color:var(--muted)}
 .cifra.oro h2{color:#5a4510}
 .cifra b{font:800 clamp(38px,5vw,54px)/1 var(--display);font-variant-numeric:tabular-nums;margin-top:6px}
-.cifra small{font-size:12.5px;color:var(--muted)}
+.cifra small{display:flex;flex-direction:column;gap:1px;color:var(--muted);margin-top:4px}
+.cifra small .que{font-size:14.5px;line-height:1.3;color:var(--fg)}
+.cifra small .prom{font-size:12.5px}
 .cifra.oro small{color:#4d3b0d}
+.cifra.oro small .que{color:var(--gold-ink)}
+.ext button em{font-style:normal;font-size:12px;opacity:.75}
 .cifra .ext{margin-top:10px;padding-top:10px;border-top:1px solid var(--line2);display:flex;flex-direction:column;gap:6px;font-size:13px}
 .cifra.oro .ext{border-top-color:rgba(26,20,5,.25)}
 .ext button{all:unset;cursor:pointer;display:flex;flex-direction:column}
@@ -463,12 +467,13 @@ const maxAct = Math.max(...conCf.flatMap(m => ACT.map(a => m.act[a])));
 /* ---------- hero ---------- */
 (function hero() {
   const pfS = [...conPf].sort((a, b) => b.pf - a.pf), cfS = [...conCf].sort((a, b) => b.cf - a.cf);
-  const fila = (rot, m, v) => `<button data-n="${esc(m.n)}"><span>${rot}</span><b>${esc(m.n)} · ${v}</b></button>`;
+  const fila = (rot, m, v, nota) => `<button data-n="${esc(m.n)}"><span>${rot}</span><b>${esc(m.n)} · ${v}</b>${nota ? `<em>${nota}</em>` : ''}</button>`;
+  // value, then what it measures, then "(promedio de los N municipios)" on its own line (user's layout, 2026-11-25)
   $('pfMed').textContent = pct(pfProm);
-  $('pfMedTxt').textContent = `de lo facturado · promedio de ${conPf.length} municipios`;
-  $('pfExt').innerHTML = fila('Más alta', pfS[0], pct(pfS[0].pf)) + fila('Más baja', pfS.at(-1), pct(pfS.at(-1).pf) + (pfS.at(-1).pfnota ? ' · derogó la tasa' : ''));
+  $('pfMedTxt').innerHTML = `<span class="que">de lo facturado</span><span class="prom">(promedio de los ${conPf.length} municipios)</span>`;
+  $('pfExt').innerHTML = fila('Más alta', pfS[0], pct(pfS[0].pf)) + fila('Más baja', pfS.at(-1), pct(pfS.at(-1).pf), pfS.at(-1).pfnota ? 'Derogó la tasa' : '');
   $('cfMed').textContent = fx(cfProm, 1);
-  $('cfMedTxt').textContent = `tributos que tiene que conocer una empresa · promedio de ${conCf.length} municipios`;
+  $('cfMedTxt').innerHTML = `<span class="que">tributos que tiene que conocer una empresa</span><span class="prom">(promedio de los ${conCf.length} municipios)</span>`;
   $('cfExt').innerHTML = fila('Más complejo', cfS[0], fx(cfS[0].cf, 1)) + fila('Más simple', cfS.at(-1), fx(cfS.at(-1).cf, 1));
   $('lista').innerHTML = M.map(m => `<option value="${esc(m.n)}">`).join('');
   const q = $('q');
