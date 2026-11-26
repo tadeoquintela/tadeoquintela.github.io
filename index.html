@@ -21,7 +21,7 @@
 <body>
 <header class="barra"><div class="wrap">
   <a class="firma" href="index.html" aria-current="page"><span class="marca" aria-hidden="true">TQ</span><b>Tadeo Quintela</b></a>
-  <nav aria-label="Secciones"><a href="publicaciones/index.html">Publicaciones</a><a href="index.html#redes">Redes</a></nav>
+  <nav aria-label="Secciones"><a href="publicaciones/index.html">Publicaciones</a><details class="menu"><summary>Contacto</summary><div class="panel"><a href="https://www.linkedin.com/in/tadeo-quintela-a2043118a/" target="_blank" rel="noopener me"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zm7 0h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.1c0-1.22-.02-2.78-1.7-2.78-1.7 0-1.96 1.33-1.96 2.7V21h-4z"/></svg><span>LinkedIn</span></a><a href="https://www.instagram.com/quintela_tadeo/" target="_blank" rel="noopener me"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg><span>Instagram</span><small>@quintela_tadeo</small></a><a href="https://x.com/tadeo_quintela" target="_blank" rel="noopener me"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg><span>X</span><small>@tadeo_quintela</small></a><a href="mailto:tadeoquintela1@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg><span>Mail</span><small>tadeoquintela1@gmail.com</small></a></div></details></nav>
 </div></header>
 <main>
 <section class="perfil"><div class="wrap">
@@ -33,6 +33,7 @@
 <a href="https://www.linkedin.com/in/tadeo-quintela-a2043118a/" target="_blank" rel="noopener me"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zm7 0h3.8v1.6h.06c.53-1 1.83-2.06 3.77-2.06 4.03 0 4.77 2.65 4.77 6.1V21h-4v-5.1c0-1.22-.02-2.78-1.7-2.78-1.7 0-1.96 1.33-1.96 2.7V21h-4z"/></svg> LinkedIn</a>
 <a href="https://www.instagram.com/quintela_tadeo/" target="_blank" rel="noopener me"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg> Instagram <small>@quintela_tadeo</small></a>
 <a href="https://x.com/tadeo_quintela" target="_blank" rel="noopener me"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.65l-5.21-6.82-5.97 6.82H1.68l7.73-8.84L1.25 2.25h6.83l4.71 6.23zm-1.16 17.52h1.83L7.08 4.13H5.12z"/></svg> X <small>@tadeo_quintela</small></a>
+<a href="mailto:tadeoquintela1@gmail.com"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg> Mail <small>tadeoquintela1@gmail.com</small></a>
     </nav>
   </div>
 </div></section>
@@ -57,6 +58,13 @@
 if (/^https?:$/.test(location.protocol)) document.querySelectorAll('a[href$="index.html"], a[href*="index.html#"]').forEach(a => {
   const h = a.getAttribute('href'); if (!/^[a-z]+:/i.test(h)) a.setAttribute('href', h.replace(/index\.html(?=#|$)/, '') || './');
 });
+// the Contacto menu closes on a click outside it, on Escape, or after choosing an option
+const menu = document.querySelector('.menu');
+if (menu) {
+  document.addEventListener('click', ev => { if (menu.open && !menu.contains(ev.target)) menu.open = false; });
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && menu.open) { menu.open = false; menu.querySelector('summary').focus(); } });
+  menu.querySelectorAll('.panel a').forEach(a => a.addEventListener('click', () => { menu.open = false; }));
+}
 </script>
 </body>
 </html>
