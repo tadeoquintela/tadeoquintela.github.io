@@ -35,7 +35,7 @@
   color-scheme: dark;
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:72px}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top, 0px) + var(--barra-h, 56px) + 14px)}
 body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 var(--body);-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 a{color:var(--gold-hi)}
@@ -56,6 +56,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .barra nav{margin-left:auto;display:flex;gap:2px}
 .barra nav a{color:var(--muted);text-decoration:none;font-size:13.5px;padding:6px 11px;border-radius:6px}
 .barra nav a:hover{color:var(--fg);background:var(--panel)}
+.barra nav a.activo{color:var(--gold-hi)}
 
 /* hero */
 .hero{padding-block:44px 36px}
@@ -103,7 +104,7 @@ h1 em{font-style:normal;color:var(--gold-hi)}
 #mapa g.m:hover path{stroke:var(--fg);stroke-width:var(--w1)}
 #mapa g.m.sel path{stroke:#fff;stroke-width:var(--w2)}
 #mapa g.m:focus-visible path{stroke:var(--gold-hi);stroke-width:var(--w2)}
-.zoom{position:absolute;left:18px;top:18px}
+.zona{margin-left:auto}
 .tip{position:absolute;pointer-events:none;background:var(--bg);border:1px solid var(--line2);padding:6px 10px;border-radius:6px;font-size:13px;white-space:nowrap;z-index:3}
 .tip b{display:block;font-weight:600}
 .tip span{color:var(--gold-hi)}
@@ -282,8 +283,17 @@ footer b{color:var(--fg);font:700 13px var(--display);letter-spacing:.12em;text-
   #mapa{max-height:none;min-height:0}
   .metodo{grid-template-columns:minmax(0,1fr)}
 }
+.barra nav a{white-space:nowrap}
+@media (max-width:900px){
+  /* on phones and tablets the section links become a second, swipeable row of the sticky bar, so every section is one tap away */
+  .barra .wrap{flex-wrap:wrap;gap:0 12px;min-height:0}
+  .barra .firma{min-height:50px}
+  .barra nav{flex-basis:100%;margin:0 -16px;padding:0 16px 10px;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .barra nav::-webkit-scrollbar{display:none}
+  .barra nav a{flex:none;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px;color:var(--fg)}
+  .barra nav a.activo{background:var(--gold);border-color:var(--gold);color:var(--gold-ink);font-weight:600}
+}
 @media (max-width:640px){
-  .barra nav{display:none}
   .hero{padding-block:30px 26px}
   .cifras{gap:8px}
   .cifra{padding:14px 12px}
@@ -306,12 +316,12 @@ footer b{color:var(--fg);font:700 13px var(--display);letter-spacing:.12em;text-
 <header class="barra">
   <div class="wrap">
     <div class="firma"><span class="marca" aria-hidden="true">TQ</span><div><b>Tadeo Quintela</b><span>Relevamiento de la Provincia de Buenos Aires</span></div></div>
-    <nav aria-label="Secciones"><a href="#explorador">Mapa</a><a href="#comparar-sec">Comparar</a><a href="#cruce-sec">Cruce</a><a href="#ranking-sec">Ranking</a><a href="#metodo-sec">Cómo se calcula</a></nav>
+    <nav aria-label="Secciones" id="secciones"><a href="#inicio-sec">Buscar</a><a href="#explorador">Mapa</a><a href="#comparar-sec">Comparar</a><a href="#cruce-sec">Cruce</a><a href="#ranking-sec">Ranking</a><a href="#metodo-sec">Cómo se calcula</a></nav>
   </div>
 </header>
 
 <main>
-  <section class="hero">
+  <section class="hero" id="inicio-sec">
     <div class="wrap hero-grid">
       <div>
         <p class="eyebrow">Ordenanzas fiscales e impositivas · 135 municipios</p>
@@ -330,6 +340,7 @@ footer b{color:var(--fg);font:700 13px var(--display);letter-spacing:.12em;text-
     <div class="wrap">
       <div class="controles">
         <div class="seg" role="group" aria-label="Índice del mapa"><button id="mCf" aria-pressed="true">Complejidad fiscal</button><button id="mPf" aria-pressed="false">Presión fiscal</button></div>
+        <div class="zona seg chico" role="group" aria-label="Zona del mapa"><button id="zProv" aria-pressed="true">Provincia</button><button id="zConu" aria-pressed="false">Conurbano</button></div>
       </div>
       <div class="ex-grid">
         <div>
@@ -337,7 +348,6 @@ footer b{color:var(--fg);font:700 13px var(--display);letter-spacing:.12em;text-
             <svg id="mapa" role="img" aria-label="Mapa de los municipios de la Provincia de Buenos Aires">
               <defs><pattern id="rayas" width="0.06" height="0.06" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="0.06" height="0.06" fill="#222529"/><line x1="0" y1="0" x2="0" y2="0.06" stroke="#383c43" stroke-width="0.03"/></pattern></defs>
             </svg>
-            <div class="zoom seg chico" role="group" aria-label="Zona del mapa"><button id="zProv" aria-pressed="true">Provincia</button><button id="zConu" aria-pressed="false">Conurbano</button></div>
             <div class="tip" id="tip" hidden></div>
           </div>
           <div class="leyenda" id="ley"></div>
@@ -923,6 +933,30 @@ if (D.inicio) {
   a.className = 'firma'; a.href = /^https?:$/.test(location.protocol) ? D.inicio.replace(/index\.html$/, '') : D.inicio; a.innerHTML = f.innerHTML; a.setAttribute('aria-label', 'Tadeo Quintela: ir al inicio');
   a.style.textDecoration = 'none'; a.style.color = 'inherit'; f.replaceWith(a);
 }
+
+/* section links: the bar's height drives where jumps land, and the link of the section on screen is highlighted */
+(() => {
+  const barra = document.querySelector('.barra'), nav = $('secciones');
+  const links = [...nav.querySelectorAll('a')], secs = links.map(a => document.getElementById(a.getAttribute('href').slice(1)));
+  const alto = () => document.documentElement.style.setProperty('--barra-h', barra.offsetHeight + 'px');
+  alto(); if (window.ResizeObserver) new ResizeObserver(alto).observe(barra);
+  let actual = null, pend = false;
+  const marcar = () => {
+    pend = false;
+    const lim = barra.getBoundingClientRect().bottom + 40;
+    let i = 0; secs.forEach((s, k) => { if (s && s.getBoundingClientRect().top <= lim) i = k; });
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) i = secs.length - 1;   // last section at the very bottom
+    if (links[i] === actual) return;
+    if (actual) { actual.classList.remove('activo'); actual.removeAttribute('aria-current'); }
+    actual = links[i]; actual.classList.add('activo'); actual.setAttribute('aria-current', 'location');
+    if (nav.scrollWidth > nav.clientWidth) {   // keep the highlighted chip visible in the swipeable row
+      const nr = nav.getBoundingClientRect(), ar = actual.getBoundingClientRect();
+      nav.scrollLeft += (ar.left - nr.left) - (nr.width - ar.width) / 2;
+    }
+  };
+  addEventListener('scroll', () => { if (!pend) { pend = true; requestAnimationFrame(marcar); } }, {passive: true});
+  addEventListener('resize', marcar); marcar();
+})();
 
 pintar(); cruce(); ranking(); comparar();
 /* open the ficha named in the link (#m-campana) */
