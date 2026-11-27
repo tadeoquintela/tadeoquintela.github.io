@@ -198,6 +198,7 @@ section.bloque{padding-block:56px;border-top:1px solid var(--line)}
 #cruce.angosto text{font-size:11.5px}
 #cruce.angosto .tit{font-size:10.5px;letter-spacing:.06em}
 #cruce.angosto .etq{font-size:11.5px}
+#cruce.angosto .rol{font-size:10px}
 #cruce text{fill:var(--muted);font-family:var(--body);font-size:12px}
 #cruce .eje line{stroke:var(--line)}
 #cruce .med{stroke:var(--line2);stroke-dasharray:4 4;stroke-width:1.2}
@@ -206,8 +207,21 @@ section.bloque{padding-block:56px;border-top:1px solid var(--line)}
 #cruce circle.q-aa{fill:var(--s5)} #cruce circle.q-ab{fill:var(--s4)} #cruce circle.q-ba{fill:var(--s3)} #cruce circle.q-bb{fill:var(--s1)}
 #cruce circle:hover{stroke:var(--fg);stroke-width:2}
 #cruce circle.sel{fill:#fff;stroke:var(--gold-hi);stroke-width:3}
-#cruce .etq{fill:var(--fg);font-size:12px;font-weight:500;paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round}
+#cruce .etq,#cruce .rol{paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round;pointer-events:none}
+#cruce .etq{fill:var(--fg);font-size:12px;font-weight:600}
+#cruce .rol{fill:var(--gold);font-size:10.5px;font-weight:500}
+#cruce .etq-g line{stroke:var(--fg);stroke-opacity:.7;stroke-width:1.2}
 #cruce .etq.sel{fill:#fff;font-weight:700}
+/* phones: the extremes get a gold ring and a small number; the names go in a list under the chart, not over the points */
+#cruce .anillo{fill:none;stroke:var(--gold-hi);stroke-width:2;pointer-events:none}
+#cruce .num circle{fill:var(--gold);stroke:var(--panel);stroke-width:1.5}
+#cruce .num text{fill:var(--gold-ink);font:700 10.5px var(--body);pointer-events:none}
+.extremos{list-style:none;margin:6px 4px 4px;padding:10px 0 0;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.extremos button{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:8px;align-items:start;width:100%}
+.extremos i{grid-row:span 2;width:18px;height:18px;border-radius:50%;background:var(--gold);color:var(--gold-ink);font:700 11px/18px var(--body);text-align:center;font-style:normal}
+.extremos b{font:600 13px/1.25 var(--body)}
+.extremos span{font-size:11.5px;line-height:1.3;color:var(--muted)}
+.extremos button:hover b{text-decoration:underline}
 .cuadros{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .cuadros div{background:var(--panel);border-radius:0 8px 8px 0;padding:12px;border-left:4px solid var(--c)}
 .cuadros b{display:block;font:800 28px/1 var(--display)}
@@ -387,7 +401,7 @@ footer b{color:var(--fg);font:700 13px var(--display);letter-spacing:.12em;text-
     <div class="wrap">
       <div class="cab"><div><h2>Los dos índices juntos</h2><p id="cruceTxt"></p></div></div>
       <div class="cruce-grid">
-        <div class="graf"><svg id="cruce" viewBox="0 0 720 450" role="img" aria-label="Presión fiscal contra complejidad fiscal"></svg></div>
+        <div class="graf"><svg id="cruce" viewBox="0 0 720 450" role="img" aria-label="Presión fiscal contra complejidad fiscal"></svg><ol class="extremos" id="extremos" hidden></ol></div>
         <div>
           <div class="cuadros" id="cuadros"></div>
           <p class="nota">Las líneas punteadas son la mediana de cada índice. Los que caen justo en una mediana se cuentan del lado de «menos».</p>
@@ -580,12 +594,48 @@ const sx = v => P.l + v / xMax * (CW - P.l - P.r), sy = v => CH - P.b - v / yMax
 const ambos = M.filter(m => m.cf != null && m.pf != null);
 const mCf = med(ambos.map(m => m.cf)), mPf = med(ambos.map(m => m.pf));
 const cuad = m => (m.pf > mPf ? 'a' : 'b') + (m.cf > mCf ? 'a' : 'b');
-const FIJAS = [...new Set([
-  [...ambos].sort((a, b) => b.pf - a.pf)[0].n, [...ambos].sort((a, b) => b.cf - a.cf)[0].n,
-  [...ambos].sort((a, b) => a.cf - b.cf)[0].n, [...ambos].sort((a, b) => a.pf - b.pf)[0].n])];
-function etiqueta(m, extra) {
-  const x = sx(m.cf), y = sy(m.pf), der = x > CW * 0.72;
-  return `<text class="etq${extra}" x="${der ? x - 11 : x + 11}" y="${y < P.t + 20 ? y + 16 : y - 9}" text-anchor="${der ? 'end' : 'start'}">${esc(m.n)}</text>`;
+/* the named points are the extremes of each index; each name says which extreme it is and a line ties it to its point */
+const ROL = {};
+for (const [k, signo, t] of [['pf', -1, 'Mayor presión fiscal'], ['cf', -1, 'Mayor complejidad'], ['cf', 1, 'Menor complejidad'], ['pf', 1, 'Menor presión fiscal']]) {
+  const n = [...ambos].sort((a, b) => signo * (a[k] - b[k]))[0].n;
+  ROL[n] = ROL[n] ? ROL[n] + ' · ' + t.toLowerCase() : t;
+}
+const FIJAS = Object.keys(ROL);
+// where a label goes for a given line length L: to the right of its point unless it would leave the chart, up unless the point is at the top
+// (giro flips it: 1 = other side, 2 = other height, 3 = both)
+function etqGeo(m, L, extra, giro = 0) {
+  const x = sx(m.cf), y = sy(m.pf), rol = ROL[m.n] || '';
+  const fn = cAng ? 11.5 : 12, fr = cAng ? 10 : 10.5, r = cAng ? 6 : 7;
+  const w = Math.max(m.n.length * fn * .62, rol.length * fr * .58);           // generous estimate of the label width
+  const der = (x + L + 5 + w > CW - 4) !== !!(giro & 1), arriba = (y > P.t + 40) !== !!(giro & 2);
+  const dx = der ? -1 : 1, dy = arriba ? -1 : 1, lx = x + dx * L * .8, ly = y + dy * L, tx = lx + dx * 5;
+  return {m, rol, extra, x, y, r, dx, dy, lx, ly, tx, der,
+          caja: {x0: der ? tx - w : tx, x1: der ? tx : tx + w, y0: (rol ? ly - 2 : ly + 4) - fn, y1: rol ? ly + 14 : ly + 7}};
+}
+const choca = (a, b) => a.x0 < b.x1 + 4 && b.x0 < a.x1 + 4 && a.y0 < b.y1 + 2 && b.y0 < a.y1 + 2;
+function etiqueta(g) {
+  // the line runs from the edge of the point to the middle of the label (between the name and its role)
+  const {m, rol, extra, x, y, r, dx, dy, lx, ly, tx, der} = g;
+  return `<g class="etq-g${extra}"><line x1="${(x + dx * r * .7).toFixed(1)}" y1="${(y + dy * r * .7).toFixed(1)}" x2="${lx.toFixed(1)}" y2="${ly.toFixed(1)}"/>`
+    + `<text class="etq${extra}" x="${tx.toFixed(1)}" y="${(rol ? ly - 2 : ly + 4).toFixed(1)}" text-anchor="${der ? 'end' : 'start'}">${esc(m.n)}</text>`
+    + (rol ? `<text class="rol" x="${tx.toFixed(1)}" y="${(ly + 11).toFixed(1)}" text-anchor="${der ? 'end' : 'start'}">${rol}</text>` : '') + '</g>';
+}
+// lay out the labels from the bottom up, the selected municipio last (so the extremes never move); a label that would cover another moves further out
+function etiquetas(s) {
+  const pend = FIJAS.map(n => [byN[n], s && s.n === n ? ' sel' : '']).sort((a, b) => a[0].pf - b[0].pf);
+  if (s && !ROL[s.n]) pend.push([s, ' sel']);
+  const L0 = cAng ? 16 : 20, hechas = [];
+  // no label may cover a named point (the extremes and the selected one), or the reader loses which point is which
+  const ocupado = pend.map(([m]) => ({n: m.n, x0: sx(m.cf) - 8, x1: sx(m.cf) + 8, y0: sy(m.pf) - 8, y1: sy(m.pf) + 8}));
+  const adentro = c => c.x0 >= 2 && c.x1 <= CW - 2 && c.y0 >= 2 && c.y1 <= CH - P.b;
+  for (const [m, extra] of pend) {
+    const libre = g => adentro(g.caja) && !hechas.some(h => choca(h.caja, g.caja)) && !ocupado.some(c => c.n !== m.n && choca(c, g.caja));
+    // shortest line first; at each length try the usual corner, then the other side, then below/above
+    let g = null;
+    for (let L = L0; !g && L <= L0 + 90; L += 6) for (const giro of [0, 1, 2, 3]) { const c = etqGeo(m, L, extra, giro); if (libre(c)) { g = c; break; } }
+    hechas.push(g || etqGeo(m, L0, extra));
+  }
+  return hechas;
 }
 function punto(m) {
   const s = m.n === sel;
@@ -600,9 +650,33 @@ function cruce() {
   h += `<text class="tit" x="${CW - P.r}" y="${CH - 8}" text-anchor="end">Complejidad fiscal (tributos) →</text><text class="tit" x="${Math.max(4, P.l - 48)}" y="${P.t - 16}">↑ Presión fiscal</text>`;
   h += `<line class="med" x1="${sx(mCf)}" x2="${sx(mCf)}" y1="${P.t}" y2="${CH - P.b}"/><line class="med" x1="${P.l}" x2="${CW - P.r}" y1="${sy(mPf)}" y2="${sy(mPf)}"/>`;
   for (const m of ambos) if (m.n !== sel) h += punto(m);
-  for (const n of FIJAS) if (n !== sel) h += etiqueta(byN[n], '');
-  const s = sel && byN[sel];
-  if (s && s.cf != null && s.pf != null) h += punto(s) + etiqueta(s, ' sel');
+  const s0 = sel && byN[sel], s = s0 && s0.cf != null && s0.pf != null ? s0 : null;
+  if (cAng) {
+    // phones: no names over the chart; a ring and a number on each extreme, explained in the list below
+    if (s) h += punto(s);
+    const usadas = [];
+    FIJAS.forEach((n, i) => {
+      const m = byN[n], x = sx(m.cf), y = sy(m.pf);
+      h += `<circle class="anillo" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${n === sel ? 10 : 8.5}"/>`;
+      // the number sits just outside its point, on the first free corner
+      let b = null;
+      for (const [ax, ay] of [[1, -1], [-1, -1], [1, 1], [-1, 1]]) {
+        const c = {x: x + ax * 12, y: y + ay * 12};
+        if (c.x < 10 || c.x > CW - 10 || c.y < P.t - 6 || c.y > CH - P.b - 2) continue;
+        if (usadas.some(u => Math.hypot(u.x - c.x, u.y - c.y) < 18)) continue;
+        b = c; break;
+      }
+      b = b || {x: x + 12, y: y - 12}; usadas.push(b);
+      h += `<g class="num" data-n="${esc(n)}"><circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="8"/><text x="${b.x.toFixed(1)}" y="${(b.y + 3.8).toFixed(1)}" text-anchor="middle">${i + 1}</text></g>`;
+    });
+    $('extremos').innerHTML = FIJAS.map((n, i) => `<li><button data-n="${esc(n)}"><i>${i + 1}</i><b>${esc(n)}</b><span>${ROL[n]}</span></button></li>`).join('');
+    $('extremos').hidden = false;
+  } else {
+    const L = etiquetas(s);
+    for (const g of L) if (!g.extra) h += etiqueta(g);
+    if (s) h += punto(s) + etiqueta(L.find(g => g.extra));   // the selected point and its name go on top
+    $('extremos').hidden = true;
+  }
   $('cruce').innerHTML = h;
 }
 (function cuadros() {
@@ -611,8 +685,9 @@ function cruce() {
   const C = {aa: 'var(--s5)', ab: 'var(--s4)', ba: 'var(--s3)', bb: 'var(--s1)'};
   $('cuadros').innerHTML = [['ab', 'Más presión, menos complejidad'], ['aa', 'Más presión, más complejidad'], ['bb', 'Menos presión, menos complejidad'], ['ba', 'Menos presión, más complejidad']]
     .map(([k, t]) => `<div style="--c:${C[k]}"><b>${q[k]}</b><span>${t}</span></div>`).join('');
-  $('cruceTxt').textContent = `Cada punto es uno de los ${ambos.length} municipios que tienen los dos índices; el color indica en qué cuadrante cae. Tocá un punto para ver su ficha.`;
-  $('cruce').addEventListener('click', e => { const c = e.target.closest('circle'); if (c) abrir(c.dataset.n, true); });
+  $('cruceTxt').textContent = `Cada punto es uno de los ${ambos.length} municipios que tienen los dos índices; el color indica en qué cuadrante cae. Los destacados son los extremos de cada índice. Tocá un punto para ver su ficha.`;
+  $('cruce').addEventListener('click', e => { const c = e.target.closest('[data-n]'); if (c) abrir(c.dataset.n, true); });
+  $('extremos').addEventListener('click', e => { const c = e.target.closest('button[data-n]'); if (c) abrir(c.dataset.n, true); });
   // redraw when the chart switches shape, or when the phone-width drawing no longer matches the screen
   addEventListener('resize', () => { const w = $('cruce').parentElement.clientWidth, a = w > 0 && w < 600;
     if (a !== cAng || (a && Math.max(260, w - 16) !== CW)) cruce(); });
