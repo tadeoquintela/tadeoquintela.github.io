@@ -193,8 +193,11 @@ section.bloque{padding-block:56px;border-top:1px solid var(--line)}
 
 /* scatter */
 .cruce-grid{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:20px;align-items:start}
-.graf{background:var(--panel);border-radius:12px;padding:8px;overflow-x:auto}
-#cruce{display:block;width:100%;min-width:540px;height:auto}
+.graf{background:var(--panel);border-radius:12px;padding:8px}
+#cruce{display:block;width:100%;height:auto}
+#cruce.angosto text{font-size:11.5px}
+#cruce.angosto .tit{font-size:10.5px;letter-spacing:.06em}
+#cruce.angosto .etq{font-size:11.5px}
 #cruce text{fill:var(--muted);font-family:var(--body);font-size:12px}
 #cruce .eje line{stroke:var(--line)}
 #cruce .med{stroke:var(--line2);stroke-dasharray:4 4;stroke-width:1.2}
@@ -203,7 +206,7 @@ section.bloque{padding-block:56px;border-top:1px solid var(--line)}
 #cruce circle.q-aa{fill:var(--s5)} #cruce circle.q-ab{fill:var(--s4)} #cruce circle.q-ba{fill:var(--s3)} #cruce circle.q-bb{fill:var(--s1)}
 #cruce circle:hover{stroke:var(--fg);stroke-width:2}
 #cruce circle.sel{fill:#fff;stroke:var(--gold-hi);stroke-width:3}
-#cruce .etq{fill:var(--fg);font-size:12px;font-weight:500}
+#cruce .etq{fill:var(--fg);font-size:12px;font-weight:500;paint-order:stroke;stroke:var(--panel);stroke-width:3.5px;stroke-linejoin:round}
 #cruce .etq.sel{fill:#fff;font-weight:700}
 .cuadros{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .cuadros div{background:var(--panel);border-radius:0 8px 8px 0;padding:12px;border-left:4px solid var(--c)}
@@ -559,7 +562,18 @@ svg.addEventListener('click', e => { const g = e.target.closest('g.m'); if (g) a
 svg.addEventListener('keydown', e => { const g = e.target.closest('g.m'); if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); abrir(g.dataset.n, angosto()); } });
 
 /* ---------- scatter ---------- */
-const CW = 720, CH = 450, P = {l: 56, r: 22, t: 34, b: 48};
+/* the scatter has two shapes: wide for computers, and a narrower, taller one for phones so it fits whole on screen
+   (it used to keep its computer width and had to be scrolled sideways) */
+let CW = 720, CH = 450, P = {l: 56, r: 22, t: 34, b: 48}, cAng = false;
+function geometria() {
+  const w = $('cruce').parentElement.clientWidth;
+  cAng = w > 0 && w < 600;
+  // on phones the drawing is exactly as wide as the screen allows, so the text keeps its real size
+  if (cAng) { CW = Math.max(260, w - 16); CH = Math.round(CW * 1.2); P = {l: 42, r: 12, t: 34, b: 44}; }
+  else { CW = 720; CH = 450; P = {l: 56, r: 22, t: 34, b: 48}; }
+  $('cruce').setAttribute('viewBox', `0 0 ${CW} ${CH}`);
+  $('cruce').classList.toggle('angosto', cAng);
+}
 const xMax = Math.ceil((Math.max(...conCf.map(m => m.cf)) + 0.01) / 5) * 5;
 const yMax = Math.ceil(Math.max(...conPf.map(m => m.pf)) * 2) / 2;
 const sx = v => P.l + v / xMax * (CW - P.l - P.r), sy = v => CH - P.b - v / yMax * (CH - P.t - P.b);
@@ -575,14 +589,15 @@ function etiqueta(m, extra) {
 }
 function punto(m) {
   const s = m.n === sel;
-  return `<circle r="${s ? 8 : 6}" class="q-${cuad(m)}${s ? ' sel' : ''}" cx="${sx(m.cf).toFixed(1)}" cy="${sy(m.pf).toFixed(1)}" data-n="${esc(m.n)}"><title>${esc(m.n)}: complejidad ${fx(m.cf, 1)} · presión ${pct(m.pf)}</title></circle>`;
+  return `<circle r="${(s ? 8 : 6) - (cAng ? 1 : 0)}" class="q-${cuad(m)}${s ? ' sel' : ''}" cx="${sx(m.cf).toFixed(1)}" cy="${sy(m.pf).toFixed(1)}" data-n="${esc(m.n)}"><title>${esc(m.n)}: complejidad ${fx(m.cf, 1)} · presión ${pct(m.pf)}</title></circle>`;
 }
 function cruce() {
+  geometria();
   let h = '<g class="eje">';
   for (let v = 0; v <= xMax; v += 5) h += `<line x1="${sx(v)}" x2="${sx(v)}" y1="${P.t}" y2="${CH - P.b}"/><text x="${sx(v)}" y="${CH - P.b + 18}" text-anchor="middle">${v}</text>`;
   for (let v = 0; v <= yMax + 1e-9; v += 0.5) h += `<line x1="${P.l}" x2="${CW - P.r}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${P.l - 8}" y="${sy(v) + 4}" text-anchor="end">${fx(v, 1)}%</text>`;
   h += '</g>';
-  h += `<text class="tit" x="${CW - P.r}" y="${CH - 8}" text-anchor="end">Complejidad fiscal (tributos) →</text><text class="tit" x="${P.l - 48}" y="${P.t - 16}">↑ Presión fiscal</text>`;
+  h += `<text class="tit" x="${CW - P.r}" y="${CH - 8}" text-anchor="end">Complejidad fiscal (tributos) →</text><text class="tit" x="${Math.max(4, P.l - 48)}" y="${P.t - 16}">↑ Presión fiscal</text>`;
   h += `<line class="med" x1="${sx(mCf)}" x2="${sx(mCf)}" y1="${P.t}" y2="${CH - P.b}"/><line class="med" x1="${P.l}" x2="${CW - P.r}" y1="${sy(mPf)}" y2="${sy(mPf)}"/>`;
   for (const m of ambos) if (m.n !== sel) h += punto(m);
   for (const n of FIJAS) if (n !== sel) h += etiqueta(byN[n], '');
@@ -598,6 +613,9 @@ function cruce() {
     .map(([k, t]) => `<div style="--c:${C[k]}"><b>${q[k]}</b><span>${t}</span></div>`).join('');
   $('cruceTxt').textContent = `Cada punto es uno de los ${ambos.length} municipios que tienen los dos índices; el color indica en qué cuadrante cae. Tocá un punto para ver su ficha.`;
   $('cruce').addEventListener('click', e => { const c = e.target.closest('circle'); if (c) abrir(c.dataset.n, true); });
+  // redraw when the chart switches shape, or when the phone-width drawing no longer matches the screen
+  addEventListener('resize', () => { const w = $('cruce').parentElement.clientWidth, a = w > 0 && w < 600;
+    if (a !== cAng || (a && Math.max(260, w - 16) !== CW)) cruce(); });
 })();
 
 /* ---------- ranking ---------- */
